@@ -28,7 +28,7 @@ typedef struct _Process {
 		DWORD pid;
 		char *psname;
 	} type;
-	HANDLE hProcess = INVALID_HANDLE_VALUE;
+	HANDLE hProcess = NULL;
 	ProcessImage image;
 	ProcessModule *modules = nullptr;
 	DWORD nModule;
