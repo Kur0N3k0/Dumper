@@ -100,11 +100,13 @@ namespace Master {
 		do {
 			if (psname == pe.szExeFile) {
 				this->process.type.pid = pe.th32ProcessID;
+				CloseHandle(hSnap);
 				return search(pe.th32ProcessID);
 			}
 
 			result = Process32Next(hSnap, &pe);
 		} while (result);
+		CloseHandle(hSnap);
 		return false;
 	}
 
