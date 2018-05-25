@@ -9,6 +9,8 @@
 #include <TlHelp32.h>
 #include <Shlwapi.h>
 
+#pragma comment(lib, "Shlwapi.lib")
+
 namespace Master {
 	Process::Process(DWORD pid) {
 		this->process.type.pid = pid;
@@ -23,13 +25,13 @@ namespace Master {
 	Process::~Process() {
 		for (DWORD i = this->process.nModule - 1; i >= 0; i--) {
 			HMODULE hModule = this->process.modules[i].hModule;
-			if(hModule != INVALID_HANDLE_VALUE)
+			if(hModule)
 				CloseHandle(hModule);
 		}
 			
 
 		HANDLE hProcess = this->process.hProcess;
-		if(hProcess != INVALID_HANDLE_VALUE)
+		if(hProcess)
 			CloseHandle(hProcess);
 	}
 
@@ -39,7 +41,7 @@ namespace Master {
 	* return #HANDLE#
 	*/
 	HANDLE _Public Process::getHandle() {
-		if (this->process.hProcess != INVALID_HANDLE_VALUE)
+		if (this->process.hProcess)
 			return this->process.hProcess;
 
 		HMODULE hModule[1024];
@@ -48,7 +50,7 @@ namespace Master {
 			DWORD nModule = cbneeded / sizeof(HMODULE);
 			this->process.modules = new ProcessModule[nModule];
 			this->process.nModule = nModule;
-			for (int i = 0; i < nModule; i++) {
+			for (DWORD i = 0; i < nModule; i++) {
 				char path[MAX_PATH] = { 0, };
 				if (GetModuleFileNameEx(this->process.hProcess, hModule[i], path, sizeof(path))) {
 					char *file = PathFindFileNameA(path);
@@ -70,7 +72,7 @@ namespace Master {
 		else if (search(this->process.type.psname)) {
 			return this->process.hProcess;
 		}
-		return INVALID_HANDLE_VALUE;
+		return NULL;
 	}
 
 	/*
@@ -81,7 +83,7 @@ namespace Master {
 	*/
 	bool _Private Process::search(DWORD pid) {
 		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
-		if (hProcess == INVALID_HANDLE_VALUE)
+		if (!hProcess)
 			return false;
 
 		char path[MAX_PATH] = { 0, };
@@ -132,7 +134,7 @@ namespace Master {
 	}
 	bool _Private Process::Dump2PE_internal(const char *output, void *baseaddr) {
 		HANDLE hProcess = this->process.hProcess;
-		if (hProcess == INVALID_HANDLE_VALUE)
+		if (!hProcess)
 			return false;
 
 		std::ofstream file(output, std::ios::binary);
@@ -230,7 +232,7 @@ namespace Master {
 	}
 	char * _Private Process::ReadMemroy_internal(void *addr, SIZE_T size) {
 		HANDLE hProcess = this->process.hProcess;
-		if (hProcess == INVALID_HANDLE_VALUE)
+		if (!hProcess)
 			return nullptr;
 
 		MEMORY_BASIC_INFORMATION mbi;

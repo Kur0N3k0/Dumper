@@ -10,8 +10,8 @@ using namespace std;
 
 int main() {
 	Master::Process pmaster("calc.exe");
-	HANDLE kakao = pmaster.getHandle();
-	if (kakao == INVALID_HANDLE_VALUE) {
+	HANDLE calc = pmaster.getHandle();
+	if (calc) {
 		cout << "shit!" << endl;
 	}
 
